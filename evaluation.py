@@ -97,3 +97,4 @@ def generate_synthetic_data(gan_model, n_samples: int, latent_dim: int = 64):
         synthetic_data = gan_model(z).cpu().numpy()
     return synthetic_data
 
+
