@@ -1,0 +1,6 @@
+in_features: 1000
+latent_dim: 64
+learning_rate: 0.0002
+n_discriminator_steps: 5
+sparsity_weight: 0.01
+label_smoothing: 0.1

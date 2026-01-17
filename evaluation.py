@@ -8,7 +8,7 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from scipy.stats import pearsonr
 
 
-def evaluate_model(model, test_loader, model_type='ae'):
+def evaluate_model(model, test_loader, model_type='ae', scaler=None):
     """
     Evaluate a model on test data.
     
@@ -16,6 +16,7 @@ def evaluate_model(model, test_loader, model_type='ae'):
         model: Trained model
         test_loader: Test dataloader
         model_type: Type of model ('ae', 'vae', or 'gan')
+        scaler: Optional sklearn scaler for inverse transformation (for log1p+standardized data)
         
     Returns:
         Dictionary with evaluation metrics
@@ -51,6 +52,15 @@ def evaluate_model(model, test_loader, model_type='ae'):
     reconstructed = np.concatenate(all_reconstructed, axis=0)
     original = np.concatenate(all_original, axis=0)
     latent = np.concatenate(all_latent, axis=0)
+    
+    # Inverse transform if scaler is provided (for log1p + StandardScaler normalization)
+    if scaler is not None:
+        print("  ✓ Applying inverse transformation (expm1 + inverse scaling)")
+        original = np.expm1(scaler.inverse_transform(original))
+        reconstructed = np.expm1(scaler.inverse_transform(reconstructed))
+        # Clip negative values from numerical instability
+        original = np.maximum(original, 0)
+        reconstructed = np.maximum(reconstructed, 0)
     
     mse = mean_squared_error(original, reconstructed)
     mae = mean_absolute_error(original, reconstructed)
